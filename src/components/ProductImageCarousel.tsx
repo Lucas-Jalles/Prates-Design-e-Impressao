@@ -48,6 +48,7 @@ export default function ProductImageCarousel({ images }: Props) {
         className="object-cover"
         priority
         sizes="100vw"
+        unoptimized
       />
 
       {/* Setas de navegação */}
