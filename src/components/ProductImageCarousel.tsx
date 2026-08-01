@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { getDriveImageUrl } from "@/lib/image-utils";
 
 interface Props {
   images: string[];
@@ -41,7 +42,7 @@ export default function ProductImageCarousel({ images }: Props) {
     >
       {/* Imagem principal */}
       <Image
-        src={validImages[current]}
+        src={getDriveImageUrl(validImages[current])}
         alt={`Imagem ${current + 1}`}
         fill
         className="object-cover"

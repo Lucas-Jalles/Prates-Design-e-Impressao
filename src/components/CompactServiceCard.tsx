@@ -5,6 +5,7 @@ import type { Service } from "@/types";
 import { isPromoActive, effectivePrice } from "@/lib/product";
 import { formatCurrency } from "@/lib/whatsapp";
 import PromoBadge from "@/components/PromoBadge";
+import { getDriveImageUrl } from "@/lib/image-utils";
 import { useCart } from "@/lib/cart";
 import { useFlyToCart } from "@/lib/flyToCart";
 
@@ -30,7 +31,7 @@ export default function CompactServiceCard({ service, fixedWidth = false }: Comp
     addItem(service, 1);
     const target = e.currentTarget;
     const rect = target.getBoundingClientRect();
-    triggerFly(service.imagem_url, rect);
+    triggerFly(getDriveImageUrl(service.imagem_url), rect);
   };
 
   return (
@@ -38,7 +39,7 @@ export default function CompactServiceCard({ service, fixedWidth = false }: Comp
       <div className={`bg-white rounded-xl shadow-sm overflow-hidden flex-shrink-0 ${fixedWidth ? 'w-[150px]' : ''}`}>
         <div className="relative aspect-square bg-gray-50">
           <img
-            src={service.imagem_url}
+            src={getDriveImageUrl(service.imagem_url)}
             alt={service.nome}
             className="w-full h-full object-contain p-3"
             loading="lazy"

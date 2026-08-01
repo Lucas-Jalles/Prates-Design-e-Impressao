@@ -9,6 +9,7 @@ import CompactServiceCard from "@/components/CompactServiceCard";
 import ProductImageCarousel from "@/components/ProductImageCarousel";
 import Link from "next/link";
 import ShareButton from "@/components/ShareButton";
+import { getDriveImageUrl } from "@/lib/image-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +62,7 @@ const allImages = [
     service.imagem_url_3,
     service.imagem_url_4,
     service.imagem_url_5,
-  ];
+  ].map(getDriveImageUrl);
 
   // Get URL for share button
   const headersList = await headers();

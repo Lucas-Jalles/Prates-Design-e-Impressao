@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/whatsapp";
 import PromoBadge from "./PromoBadge";
 import CountdownTimer from "./CountdownTimer";
 import AddToCartButton from "./AddToCartButton";
+import { getDriveImageUrl } from "@/lib/image-utils";
 
 export default function ServiceCard({ service }: { service: Service }) {
   const hasPromo = isPromoActive(service.promo_ativa, service.prazo_oferta) && service.valor_desconto !== null;
@@ -16,7 +17,7 @@ export default function ServiceCard({ service }: { service: Service }) {
       {/* Imagem - ~60% do card */}
       <div className="relative aspect-[4/3] bg-gray-50">
         <img
-          src={service.imagem_url}
+          src={getDriveImageUrl(service.imagem_url)}
           alt={service.nome}
           className="w-full h-full object-contain p-4"
           loading="lazy"
@@ -25,45 +26,25 @@ export default function ServiceCard({ service }: { service: Service }) {
       </div>
 
       {/* Conteúdo - flex-col para alinhar tudo embaixo */}
-      <div className="p-3 flex flex-col flex-1">
-        {/* Nome do produto */}
-        <h3 className="text-sm font-medium text-foreground line-clamp-2 min-h-[2.5rem] mb-2">
-          {service.nome}
-        </h3>
-
-        {/* Subcategoria */}
-        <span className="text-xs text-muted capitalize mb-1">
-          {service.subcategoria || service.categoria}
-        </span>
-
-        {/* Área de preços */}
-        <div className="flex flex-col gap-0.5 mb-2">
-          {hasPromo && (
-            <span className="text-sm text-gray-500 line-through">
-              {formatCurrency(originalPrice)}
-            </span>
-          )}
-          <span className="text-2xl font-bold text-accent">
-            {formatCurrency(price)}
+      <div className="p-3 flex flex-col gap-2 flex-1">
+        <Link href={`/servico/${service.id}`}>
+          <h3 className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
+            {service.nome}
+          </h3>
+        </Link>
+        <span className="text-xs text-muted capitalize">{service.subcategoria || service.categoria}</span>
+        {hasPromo && (
+          <span className="text-xs text-gray-500 line-through">
+            {formatCurrency(service.valor_original)}
           </span>
-        </div>
-
-        {/* Info complementar - parcelamento */}
-        {hasPromo && (
-          <p className="text-xs text-muted mb-2">
-            até 3x sem juros
-          </p>
         )}
-
-        {/* Contador de oferta */}
+        <span className="text-lg font-bold text-foreground">
+          {formatCurrency(price)}
+        </span>
         {hasPromo && (
-          <CountdownTimer deadline={service.prazo_oferta} className="self-start mb-2" />
+          <CountdownTimer deadline={service.prazo_oferta} />
         )}
-
-        {/* Botão de ação - sempre no final */}
-        <div className="mt-auto">
-          <AddToCartButton service={service} compact />
-        </div>
+        <AddToCartButton service={service} compact />
       </div>
     </Link>
   );
