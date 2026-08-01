@@ -1,65 +1,113 @@
-import Image from "next/image";
+import { getServices } from "@/lib/googleSheets";
+import { isPromoActive, effectivePrice, getCategoryLabel, getSubcategoryLabel } from "@/lib/product";
+import { formatCurrency } from "@/lib/whatsapp";
+import CategoryChips from "@/components/CategoryChips";
+import PromoBadge from "@/components/PromoBadge";
+import Header from "@/components/Header";
+import CompactServiceCard from "@/components/CompactServiceCard";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+interface PageProps {
+  searchParams: Promise<{ categoria?: string; subcategoria?: string }>;
+}
+
+export default async function HomePage({ searchParams }: PageProps) {
+  const { categoria, subcategoria } = await searchParams;
+  let services: Awaited<ReturnType<typeof getServices>> = [];
+  let error: string | null = null;
+
+  try {
+    services = await getServices();
+  } catch (e) {
+    error = (e as Error).message;
+  }
+
+  // Categorias principais (impressao, design)
+  const mainCategories = Array.from(
+    new Set(services.map((s) => s.categoria).filter(Boolean))
+  ).sort();
+
+  // Subcategorias da categoria selecionada
+  const subCategories = categoria
+    ? Array.from(
+        new Set(
+          services
+            .filter((s) => s.categoria === categoria)
+            .map((s) => s.subcategoria)
+            .filter(Boolean)
+        )
+      ).sort()
+    : [];
+
+  const filtered = services.filter((s) => {
+    if (categoria && s.categoria !== categoria) return false;
+    if (subcategoria && s.subcategoria !== subcategoria) return false;
+    return true;
+  });
+
+  const promos = services
+    .filter((s) => isPromoActive(s.promo_ativa, s.prazo_oferta) && s.valor_desconto !== null)
+    .slice(0, 6);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="max-w-md mx-auto">
+      <Header />
+      {/* Categorias principais */}
+      <CategoryChips
+        categories={mainCategories.map(getCategoryLabel)}
+        active={categoria ? getCategoryLabel(categoria) : "Todos"}
+        paramName="categoria"
+        values={mainCategories}
+      />
+
+      {/* Subcategorias */}
+      {categoria && subCategories.length > 0 && (
+        <CategoryChips
+          categories={subCategories.map(getSubcategoryLabel)}
+          active={subcategoria ? getSubcategoryLabel(subcategoria) : "Todos"}
+          paramName="subcategoria"
+          values={subCategories}
+          baseParams={{ categoria }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+      )}
+
+      {error && (
+        <div className="px-4 py-6 text-center text-alert text-sm">
+          Não foi possível carregar os serviços: {error}
+        </div>
+      )}
+
+      {!error && promos.length > 0 && !categoria && (
+        <section className="px-4 py-3">
+          <h2 className="text-base font-semibold mb-2">🔥 Ofertas</h2>
+          <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4">
+            {promos.map((s) => (
+              <CompactServiceCard key={s.id} service={s} fixedWidth />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="px-4 py-3">
+        <h2 className="text-base font-semibold mb-3">
+          {subcategoria
+            ? getSubcategoryLabel(subcategoria)
+            : categoria
+            ? getCategoryLabel(categoria)
+            : "Todos os serviços"}
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {filtered.map((s) => (
+            <CompactServiceCard key={s.id} service={s} />
+          ))}
+        </div>
+        {!error && filtered.length === 0 && (
+          <p className="text-center text-sm text-muted py-8">
+            Nenhum serviço encontrado.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        )}
+      </section>
     </div>
   );
 }

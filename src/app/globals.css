@@ -1,26 +1,85 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Prates Brand Colors */
+  --background: #FAFAFA;
+  --foreground: #111111;
+  --primary: #1E9BE0;        /* Azul vibrante - primária */
+  --accent: #E4177B;         /* Rosa/Magenta - destaque/CTA */
+  --warning: #F5C518;        /* Amarelo/Dourado - oferta/urgência */
+  --action: #25D366;         /* Verde WhatsApp - botão ação */
+  --surface: #FFFFFF;        /* Cards */
+  --border: #E5E5E5;         /* Bordas sutis */
+  --muted: #737373;          /* Texto secundário */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-warning: var(--warning);
+  --color-action: var(--action);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-body);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Inter, Poppins, Arial, Helvetica, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  min-height: 48px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Gradiente da marca para textos especiais */
+.bg-brand-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--accent), var(--warning));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Header sticky com blur */
+.header-sticky {
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Professional heading - using Poppins with heavier weights */
+.font-heading {
+  font-family: var(--font-body), Inter, Poppins, Arial, Helvetica, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.font-heading-bold {
+  font-family: var(--font-body), Inter, Poppins, Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Product detail page specific styles */
+.product-name {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.product-price {
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
