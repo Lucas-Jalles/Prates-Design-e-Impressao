@@ -23,7 +23,6 @@ export function getDriveImageUrl(url: string): string {
   }
   
   return url;
-<<<<<<< HEAD
 }
 
 // Tiny 1x1 transparent PNG as base64 for blur placeholder fallback
@@ -48,6 +47,4 @@ export function getBlurDataUrl(url: string): string {
   // SVG 1x1 com cor de fundo
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="hsl(${hue}, ${sat}%, ${light}%)"/></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
-=======
->>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
 }
