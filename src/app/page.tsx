@@ -9,11 +9,19 @@ import CompactServiceCard from "@/components/CompactServiceCard";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
+<<<<<<< HEAD
   searchParams: Promise<{ categoria?: string; subcategoria?: string; q?: string }>;
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
   const { categoria, subcategoria, q } = await searchParams;
+=======
+  searchParams: Promise<{ categoria?: string; subcategoria?: string }>;
+}
+
+export default async function HomePage({ searchParams }: PageProps) {
+  const { categoria, subcategoria } = await searchParams;
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
   let services: Awaited<ReturnType<typeof getServices>> = [];
   let error: string | null = null;
 
@@ -23,6 +31,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     error = (e as Error).message;
   }
 
+<<<<<<< HEAD
   const searchQuery = q?.toLowerCase().trim() || "";
 
   const filtered = services.filter((s) => {
@@ -45,6 +54,8 @@ export default async function HomePage({ searchParams }: PageProps) {
     return true;
   });
 
+=======
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
   // Categorias principais (impressao, design)
   const mainCategories = Array.from(
     new Set(services.map((s) => s.categoria).filter(Boolean))
@@ -62,10 +73,20 @@ export default async function HomePage({ searchParams }: PageProps) {
       ).sort()
     : [];
 
+<<<<<<< HEAD
+=======
+  const filtered = services.filter((s) => {
+    if (categoria && s.categoria !== categoria) return false;
+    if (subcategoria && s.subcategoria !== subcategoria) return false;
+    return true;
+  });
+
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
   const promos = services
     .filter((s) => isPromoActive(s.promo_ativa, s.prazo_oferta) && s.valor_desconto !== null)
     .slice(0, 6);
 
+<<<<<<< HEAD
   const isSearching = !!searchQuery;
   const sectionTitle = isSearching
     ? searchQuery
@@ -77,10 +98,13 @@ export default async function HomePage({ searchParams }: PageProps) {
     ? getCategoryLabel(categoria)
     : "Todos os serviços";
 
+=======
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
   return (
     <div className="max-w-md mx-auto">
       <Header />
       {/* Categorias principais */}
+<<<<<<< HEAD
       {!isSearching && (
         <CategoryChips
           categories={mainCategories.map(getCategoryLabel)}
@@ -92,6 +116,17 @@ export default async function HomePage({ searchParams }: PageProps) {
 
       {/* Subcategorias */}
       {!isSearching && categoria && subCategories.length > 0 && (
+=======
+      <CategoryChips
+        categories={mainCategories.map(getCategoryLabel)}
+        active={categoria ? getCategoryLabel(categoria) : "Todos"}
+        paramName="categoria"
+        values={mainCategories}
+      />
+
+      {/* Subcategorias */}
+      {categoria && subCategories.length > 0 && (
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
         <CategoryChips
           categories={subCategories.map(getSubcategoryLabel)}
           active={subcategoria ? getSubcategoryLabel(subcategoria) : "Todos"}
@@ -107,7 +142,11 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       )}
 
+<<<<<<< HEAD
       {!error && promos.length > 0 && !categoria && !isSearching && (
+=======
+      {!error && promos.length > 0 && !categoria && (
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
         <section className="px-4 py-3">
           <h2 className="text-base font-semibold mb-2">🔥 Ofertas</h2>
           <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4">
@@ -119,7 +158,17 @@ export default async function HomePage({ searchParams }: PageProps) {
       )}
 
       <section className="px-4 py-3">
+<<<<<<< HEAD
         <h2 className="text-base font-semibold mb-3">{sectionTitle}</h2>
+=======
+        <h2 className="text-base font-semibold mb-3">
+          {subcategoria
+            ? getSubcategoryLabel(subcategoria)
+            : categoria
+            ? getCategoryLabel(categoria)
+            : "Todos os serviços"}
+        </h2>
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {filtered.map((s) => (
             <CompactServiceCard key={s.id} service={s} />
@@ -127,9 +176,13 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
         {!error && filtered.length === 0 && (
           <p className="text-center text-sm text-muted py-8">
+<<<<<<< HEAD
             {isSearching
               ? `Nenhum resultado encontrado para "${q}".`
               : "Nenhum serviço encontrado."}
+=======
+            Nenhum serviço encontrado.
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
           </p>
         )}
       </section>

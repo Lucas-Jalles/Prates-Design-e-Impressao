@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
+<<<<<<< HEAD
 import Image from "next/image";
 import type { Service } from "@/types";
 import { isPromoActive, effectivePrice } from "@/lib/product";
 import { formatCurrency } from "@/lib/whatsapp";
 import ProductBadges from "@/components/ProductBadges";
 import { getDriveImageUrl, getBlurDataUrl } from "@/lib/image-utils";
+=======
+import type { Service } from "@/types";
+import { isPromoActive, effectivePrice } from "@/lib/product";
+import { formatCurrency } from "@/lib/whatsapp";
+import PromoBadge from "@/components/PromoBadge";
+import { getDriveImageUrl } from "@/lib/image-utils";
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
 import { useCart } from "@/lib/cart";
 import { useFlyToCart } from "@/lib/flyToCart";
 
@@ -35,12 +43,16 @@ export default function CompactServiceCard({ service, fixedWidth = false }: Comp
     triggerFly(getDriveImageUrl(service.imagem_url), rect);
   };
 
+<<<<<<< HEAD
   const blurUrl = service.imagem_blur_url || getBlurDataUrl(service.imagem_url);
 
+=======
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
   return (
     <Link href={`/servico/${service.id}`} className="block">
       <div className={`bg-white rounded-xl shadow-sm overflow-hidden flex-shrink-0 ${fixedWidth ? 'w-[150px]' : ''}`}>
         <div className="relative aspect-square bg-gray-50">
+<<<<<<< HEAD
           <Image
             src={getDriveImageUrl(service.imagem_url)}
             alt={service.nome}
@@ -53,6 +65,15 @@ export default function CompactServiceCard({ service, fixedWidth = false }: Comp
             loading="lazy"
           />
           <ProductBadges service={service} maxBadges={2} />
+=======
+          <img
+            src={getDriveImageUrl(service.imagem_url)}
+            alt={service.nome}
+            className="w-full h-full object-contain p-3"
+            loading="lazy"
+          />
+          <PromoBadge promo={service.promo_ativa} prazo={service.prazo_oferta} />
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
           <button
             onClick={handleAddToCart}
             className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-lg text-accent hover:bg-accent/10 transition active:scale-95 z-10"

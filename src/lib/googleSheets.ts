@@ -1,5 +1,9 @@
 import type { Service } from "@/types";
 
+<<<<<<< HEAD
+=======
+let cachedServices: Service[] | null = null;
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
 const SHEETS_URL = process.env.NEXT_PUBLIC_SHEETS_URL!;
 
 export async function fetchServices(): Promise<Service[]> {
@@ -42,7 +46,10 @@ export async function fetchServices(): Promise<Service[]> {
       imagem_url_3: String(obj.imagem_url_3 ?? ""),
       imagem_url_4: String(obj.imagem_url_4 ?? ""),
       imagem_url_5: String(obj.imagem_url_5 ?? ""),
+<<<<<<< HEAD
       imagem_blur_url: obj.imagem_blur_url ? String(obj.imagem_blur_url) : undefined,
+=======
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
       valor_original: Number(obj.valor_original ?? 0),
       valor_desconto: obj.valor_desconto === null || obj.valor_desconto === undefined || obj.valor_desconto === ""
         ? null
@@ -55,16 +62,25 @@ export async function fetchServices(): Promise<Service[]> {
       relacionados: obj.relacionados ? String(obj.relacionados) : null,
       descricao: obj.descricao ? String(obj.descricao) : null,
       especificacoes: obj.especificacoes ? String(obj.especificacoes) : null,
+<<<<<<< HEAD
       // Badges estratégicos
       badge_novo: obj.badge_novo ? String(obj.badge_novo).toUpperCase() : "NAO",
       badge_mais_vendido: obj.badge_mais_vendido ? String(obj.badge_mais_vendido).toUpperCase() : "NAO",
       badge_destaque: obj.badge_destaque ? String(obj.badge_destaque).toUpperCase() : "NAO",
+=======
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
     } as Service;
   });
 }
 
 export async function getServices(): Promise<Service[]> {
+<<<<<<< HEAD
   return fetchServices();
+=======
+  if (cachedServices) return cachedServices;
+  cachedServices = await fetchServices();
+  return cachedServices;
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
 }
 
 export async function getServiceById(id: number): Promise<Service | null> {
@@ -73,7 +89,11 @@ export async function getServiceById(id: number): Promise<Service | null> {
 }
 
 export function clearCache(): void {
+<<<<<<< HEAD
   // No-op: in-memory cache removed because it doesn't work on Vercel serverless.
   // Each function invocation has isolated memory. Cache invalidation should be
   // handled at the Google Apps Script level or via Vercel KV/Redis if needed.
+=======
+  cachedServices = null;
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
 }

@@ -23,8 +23,11 @@ export default function CategoryChips({
 
   const buildHref = (value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
+<<<<<<< HEAD
     // Clear search query when selecting category
     params.delete("q");
+=======
+>>>>>>> 9593cfdd50e1e72be38c233fbcfa01d69a5c4267
     Object.entries(baseParams).forEach(([k, v]) => params.set(k, v));
     if (value) {
       params.set(paramName, value);
