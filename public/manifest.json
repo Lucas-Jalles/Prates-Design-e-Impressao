@@ -1,0 +1,42 @@
+{
+  "name": "Prates Gráfica - Catálogo",
+  "short_name": "Prates",
+  "description": "Catálogo digital de serviços de impressão e design - finalize pelo WhatsApp",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAFA",
+  "theme_color": "#1E9BE0",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "business"],
+  "shortcuts": [
+    {
+      "name": "Categorias",
+      "short_name": "Categorias",
+      "description": "Ver todas as categorias",
+      "url": "/categorias",
+      "icons": [{ "src": "/192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Carrinho",
+      "short_name": "Carrinho",
+      "description": "Ver carrinho de compras",
+      "url": "/carrinho",
+      "icons": [{ "src": "/192.png", "sizes": "192x192" }]
+    }
+  ]
+}
