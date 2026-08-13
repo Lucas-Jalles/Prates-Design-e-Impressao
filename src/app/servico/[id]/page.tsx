@@ -65,16 +65,16 @@ export default async function ServicePage({ params }: PageProps) {
   if (service.relacionados) {
     const ids = service.relacionados
       .split(",")
-      .map((s) => parseInt(s.trim(), 10))
-      .filter((n) => Number.isFinite(n));
+      .map((s: string) => parseInt(s.trim(), 10))
+      .filter((n: string) => Number.isFinite(Number(n)));
     if (ids.length > 0) {
-      relacionados = services.filter((s) => ids.includes(s.id));
+      relacionados = services.filter((s: any) => ids.includes(s.id));
     }
   }
 
   const specs = (service.especificacoes || "")
     .split("\n")
-    .map((s) => s.trim())
+    .map((s: string) => s.trim())
     .filter(Boolean);
 
   const imageUrls = [
@@ -181,10 +181,10 @@ export default async function ServicePage({ params }: PageProps) {
 
         {specs.length > 0 && (
           <section className="mt-3">
-            <h2 className="text-base font-semibold mb-1">Especificações</h2>
-            <ul className="text-sm text-foreground/80 list-disc pl-5">
-              {specs.map((s, i) => (
-                <li key={i}>{s}</li>
+<h2 className="text-base font-semibold mb-1">Especificações</h2>
+<ul className="text-sm text-foreground/80 list-disc pl-5">
+              {specs.map((s: string, i: number) => (
+<li key={i}>{s}</li>
               ))}
             </ul>
           </section>
