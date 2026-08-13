@@ -49,6 +49,12 @@ export default async function HomePage({ searchParams }: PageProps) {
               promo_ativa: p.promo_ativa || "NAO",
               prazo_oferta: p.prazo_oferta || "",
               prazo_entrega: p.prazo_entrega || "",
+              // Campos de imagem - CRÍTICOS para exibição
+              imagem_url: String(p.imagem_url ?? ''),
+              imagem_url_2: String(p.imagem_url_2 ?? ''),
+              imagem_url_3: String(p.imagem_url_3 ?? ''),
+              imagem_url_4: String(p.imagem_url_4 ?? ''),
+              imagem_url_5: String(p.imagem_url_5 ?? ''),
             };
           });
         }
