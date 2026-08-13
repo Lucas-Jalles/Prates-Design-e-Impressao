@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { getServices, getServiceById } from "@/lib/googleSheets";
 import { isPromoActive, effectivePrice, getCategoryLabel, getSubcategoryLabel } from "@/lib/product";
 import { formatCurrency, buyNowUrl } from "@/lib/whatsapp";
 import AddToCartButton from "@/components/AddToCartButton";
@@ -10,6 +9,8 @@ import ProductImageCarousel from "@/components/ProductImageCarousel";
 import Link from "next/link";
 import ShareButton from "@/components/ShareButton";
 import { getDriveImageUrl, getBlurDataUrl } from "@/lib/image-utils";
+import { readFile } from "fs/promises";
+import path from "path";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,18 @@ export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
   const numId = parseInt(id, 10);
   if (Number.isNaN(numId)) return { title: "Serviço" };
-  const service = await getServiceById(numId);
+  
+  // Buscar cache para obter o nome do serviço
+  let services: any[] = [];
+  try {
+    const cachePath = path.join(process.cwd(), "src", "data", "products-cache.json");
+    const content = await readFile(cachePath, "utf-8");
+    services = JSON.parse(content);
+  } catch (e) {
+    // Se der erro no cache, continua sem dados
+  }
+  
+  const service = services.find((s) => s.id === numId);
   return { title: service?.nome ?? "Serviço" };
 }
 
@@ -30,7 +42,17 @@ export default async function ServicePage({ params }: PageProps) {
   const numId = parseInt(id, 10);
   if (Number.isNaN(numId)) notFound();
 
-  const service = await getServiceById(numId);
+  // Buscar do cache em vez de da planilha
+  let services: any[] = [];
+  try {
+    const cachePath = path.join(process.cwd(), "src", "data", "products-cache.json");
+    const content = await readFile(cachePath, "utf-8");
+    services = JSON.parse(content);
+  } catch (e) {
+    throw new Error("Erro ao carregar cache");
+  }
+
+  const service = services.find((s) => s.id === numId);
   if (!service) notFound();
 
   const hasPromo = isPromoActive(service.promo_ativa, service.prazo_oferta) && service.valor_desconto !== null;
@@ -39,15 +61,14 @@ export default async function ServicePage({ params }: PageProps) {
     ? Math.round(((service.valor_original - price) / service.valor_original) * 100)
     : 0;
 
-  let relacionados: Awaited<ReturnType<typeof getServices>> = [];
+  let relacionados: any[] = [];
   if (service.relacionados) {
     const ids = service.relacionados
       .split(",")
       .map((s) => parseInt(s.trim(), 10))
       .filter((n) => Number.isFinite(n));
     if (ids.length > 0) {
-      const all = await getServices();
-      relacionados = all.filter((s) => ids.includes(s.id));
+      relacionados = services.filter((s) => ids.includes(s.id));
     }
   }
 

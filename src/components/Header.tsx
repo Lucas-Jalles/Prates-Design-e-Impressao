@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { getServices } from "@/lib/googleSheets";
 
 export default function Header() {
   const searchParams = useSearchParams();
@@ -21,22 +20,8 @@ export default function Header() {
     setLocalSearch(currentSearch);
   }, [currentSearch]);
 
-  // Load product names for autocomplete
-  useEffect(() => {
-    let mounted = true;
-    getServices()
-      .then((services) => {
-        if (mounted) {
-          const names = services
-            .map((s) => s.nome)
-            .filter(Boolean)
-            .filter((name, idx, arr) => arr.indexOf(name) === idx); // unique
-          setSuggestions(names);
-        }
-      })
-      .catch(() => {});
-    return () => { mounted = false; };
-  }, []);
+  // Sugestoes vêm do cache - não buscamos mais na planilha automaticamente
+  // O autocomplete agora usa dados locais ou pode ser preenchido manualmente
 
   const filteredSuggestions = suggestions.filter((name) =>
     name.toLowerCase().includes(localSearch.toLowerCase())

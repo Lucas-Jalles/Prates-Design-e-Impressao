@@ -1,8 +1,9 @@
-import { getServices } from "@/lib/googleSheets";
 import { isPromoActive, effectivePrice, getCategoryLabel, getSubcategoryLabel } from "@/lib/product";
 import Header from "@/components/Header";
 import CompactServiceCard from "@/components/CompactServiceCard";
 import Link from "next/link";
+import { readFile } from "fs/promises";
+import path from "path";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +13,13 @@ interface PageProps {
 
 export default async function CategoriasPage({ searchParams }: PageProps) {
   const { categoria, subcategoria } = await searchParams;
-  let services: Awaited<ReturnType<typeof getServices>> = [];
+  let services: any[] = [];
   let error: string | null = null;
 
   try {
-    services = await getServices();
+    const cachePath = path.join(process.cwd(), "src", "data", "products-cache.json");
+    const content = await readFile(cachePath, "utf-8");
+    services = JSON.parse(content);
   } catch (e) {
     error = (e as Error).message;
   }
