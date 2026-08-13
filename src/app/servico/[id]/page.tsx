@@ -23,18 +23,59 @@ export async function generateMetadata({ params }: PageProps) {
   const numId = parseInt(id, 10);
   if (Number.isNaN(numId)) return { title: "Serviço" };
   
-  // Buscar cache para obter o nome do serviço
+  // Buscar da planilha Google em vez de cache vazio
   let services: any[] = [];
-  try {
-    const cachePath = path.join(process.cwd(), "src", "data", "products-cache.json");
-    const content = await readFile(cachePath, "utf-8");
-    services = JSON.parse(content);
-  } catch (e) {
-    // Se der erro no cache, continua sem dados
+  const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_URL;
+  
+  if (sheetsUrl) {
+    try {
+      const res = await fetch(sheetsUrl, {
+        cache: 'no-store',
+        headers: { Accept: "application/json" }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        let products = [];
+        
+        if (Array.isArray(data)) {
+          products = data;
+        } else if (data && data.products && Array.isArray(data.products)) {
+          products = data.products;
+        }
+        
+        if (products && Array.isArray(products)) {
+          services = products.map(function(p) {
+            return {
+              id: p.id || 0,
+              nome: p.nome || "",
+              categoria: p.categoria || "",
+              descricao: p.descricao || "",
+              especificacoes: p.especificacoes || "",
+              relacionados: p.relacionados || "",
+              valor_original: typeof p.valor_original === "number" ? p.valor_original : 0,
+              valor_desconto: typeof p.valor_desconto === "number" ? p.valor_desconto : null,
+              promo_ativa: p.promo_ativa || "NAO",
+              prazo_oferta: p.prazo_oferta || "",
+              prazo_entrega: p.prazo_entrega || "",
+              imagem_url: String(p.imagem_url ?? ''),
+              imagem_url_2: String(p.imagem_url_2 ?? ''),
+              imagem_url_3: String(p.imagem_url_3 ?? ''),
+              imagem_url_4: String(p.imagem_url_4 ?? ''),
+              imagem_url_5: String(p.imagem_url_5 ?? ''),
+            };
+          });
+        }
+      }
+    } catch (e) {
+      // Se der erro no fetch, continua vazio
+    }
   }
   
   const service = services.find((s) => s.id === numId);
-  return { title: service?.nome ?? "Serviço" };
+  if (!service) return { title: "Serviço" };
+  
+  return { title: service.nome ?? "Serviço" };
 }
 
 export default async function ServicePage({ params }: PageProps) {
@@ -42,14 +83,55 @@ export default async function ServicePage({ params }: PageProps) {
   const numId = parseInt(id, 10);
   if (Number.isNaN(numId)) notFound();
 
-  // Buscar do cache em vez de da planilha
+  // Buscar da planilha Google em vez de cache vazio
   let services: any[] = [];
-  try {
-    const cachePath = path.join(process.cwd(), "src", "data", "products-cache.json");
-    const content = await readFile(cachePath, "utf-8");
-    services = JSON.parse(content);
-  } catch (e) {
-    throw new Error("Erro ao carregar cache");
+  const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_URL;
+  
+  if (sheetsUrl) {
+    try {
+      const res = await fetch(sheetsUrl, {
+        cache: 'no-store',
+        headers: { Accept: "application/json" }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        let products = [];
+        
+        if (Array.isArray(data)) {
+          products = data;
+        } else if (data && data.products && Array.isArray(data.products)) {
+          products = data.products;
+        }
+        
+        if (products && Array.isArray(products)) {
+          services = products.map(function(p) {
+            return {
+              id: p.id || 0,
+              nome: p.nome || "",
+              categoria: p.categoria || "",
+              descricao: p.descricao || "",
+              especificacoes: p.especificacoes || "",
+              relacionados: p.relacionados || "",
+              valor_original: typeof p.valor_original === "number" ? p.valor_original : 0,
+              valor_desconto: typeof p.valor_desconto === "number" ? p.valor_desconto : null,
+              promo_ativa: p.promo_ativa || "NAO",
+              prazo_oferta: p.prazo_oferta || "",
+              prazo_entrega: p.prazo_entrega || "",
+              imagem_url: String(p.imagem_url ?? ''),
+              imagem_url_2: String(p.imagem_url_2 ?? ''),
+              imagem_url_3: String(p.imagem_url_3 ?? ''),
+              imagem_url_4: String(p.imagem_url_4 ?? ''),
+              imagem_url_5: String(p.imagem_url_5 ?? ''),
+            };
+          });
+        }
+      }
+    } catch (e) {
+      throw new Error("Erro ao carregar da planilha");
+    }
+  } else {
+    throw new Error("NEXT_PUBLIC_SHEETS_URL não configurada");
   }
 
   const service = services.find((s) => s.id === numId);
@@ -84,7 +166,6 @@ export default async function ServicePage({ params }: PageProps) {
     service.imagem_url_4,
     service.imagem_url_5,
   ].filter(Boolean);
-
   const allImages = imageUrls.map(getDriveImageUrl);
   const blurUrls = imageUrls.map((url) => service.imagem_blur_url || getBlurDataUrl(url));
 

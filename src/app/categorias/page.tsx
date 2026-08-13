@@ -16,20 +16,57 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
   let services: any[] = [];
   let error: string | null = null;
 
-  try {
-    const cachePath = path.join(process.cwd(), "src", "data", "products-cache.json");
-    const content = await readFile(cachePath, "utf-8");
-    services = JSON.parse(content);
-  } catch (e) {
-    error = (e as Error).message;
+  // Fetch from Google Sheets API
+  const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_URL;
+  if (sheetsUrl) {
+    try {
+      const res = await fetch(sheetsUrl, {
+        cache: 'no-store',
+        headers: { Accept: "application/json" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        let products = [];
+        if (Array.isArray(data)) {
+          products = data;
+        } else if (data && data.products && Array.isArray(data.products)) {
+          products = data.products;
+        }
+        if (products && Array.isArray(products)) {
+          services = products.map(function(p) {
+            return {
+              id: p.id || 0,
+              nome: p.nome || "",
+              categoria: p.categoria || "",
+              descricao: p.descricao || "",
+              especificacoes: p.especificacoes || "",
+              relacionados: p.relacionados || "",
+              valor_original: typeof p.valor_original === "number" ? p.valor_original : 0,
+              valor_desconto: typeof p.valor_desconto === "number" ? p.valor_desconto : null,
+              promo_ativa: p.promo_ativa || "NAO",
+              prazo_oferta: p.prazo_oferta || "",
+              prazo_entrega: p.prazo_entrega || "",
+              imagem_url: String(p.imagem_url ?? ''),
+              imagem_url_2: String(p.imagem_url_2 ?? ''),
+              imagem_url_3: String(p.imagem_url_3 ?? ''),
+              imagem_url_4: String(p.imagem_url_4 ?? ''),
+              imagem_url_5: String(p.imagem_url_5 ?? ''),
+            };
+          });
+        }
+      }
+    } catch (err) {
+      error = (err as Error).message;
+      console.error("Error:", err);
+    }
+  } else {
+    error = "NEXT_PUBLIC_SHEETS_URL not configured";
   }
 
-  // Categorias principais disponíveis
   const mainCategories = Array.from(
     new Set(services.map((s) => s.categoria).filter(Boolean))
   ).sort();
 
-  // Subcategorias da categoria selecionada
   const subCategories = categoria
     ? Array.from(
         new Set(
@@ -51,7 +88,6 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
   const currentCategoryLabel = categoria ? getCategoryLabel(categoria) : null;
   const currentSubcategoryLabel = subcategoria ? getSubcategoryLabel(subcategoria) : null;
 
-  // Promos por categoria (quando nenhuma categoria selecionada, mostra geral)
   const getPromosForCategory = (cat?: string) => {
     const base = cat ? services.filter((s) => s.categoria === cat) : services;
     return base
@@ -62,13 +98,10 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
   return (
     <div className="max-w-md mx-auto">
       <Header />
-      
       {!hasCategorySelected ? (
-        // Tela inicial: lista de categorias principais + ofertas por categoria
         <>
           {mainCategories.map((cat) => {
             const promos = getPromosForCategory(cat);
-            const count = services.filter((s) => s.categoria === cat).length;
             if (promos.length === 0) return null;
             return (
               <section key={cat} className="px-4 py-3">
@@ -91,7 +124,6 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
               </section>
             );
           })}
-          
           <section className="px-4 py-4">
             <h2 className="text-base font-semibold mb-3">Todas as Categorias</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -115,53 +147,48 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
           </section>
         </>
       ) : (
-        // Tela com categoria selecionada
         <>
-          {/* Breadcrumb / Navegação de volta */}
           <div className="px-4 py-3">
             <Link
               href="/categorias"
               className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth={2.5}
+              >
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
               Todas as categorias
             </Link>
           </div>
 
-          {/* Ofertas da categoria selecionada */}
-          {(() => {
-            const promos = getPromosForCategory(categoria);
-            if (promos.length === 0) return null;
-            return (
-              <section className="px-4 py-3">
-                <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-                  🔥 Ofertas em {currentCategoryLabel}
-                </h2>
-                <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4">
-                  {promos.map((s) => (
-                    <CompactServiceCard key={s.id} service={s} fixedWidth />
-                  ))}
-                </div>
-              </section>
-            );
-          })()}
+          {getPromosForCategory(categoria).length > 0 && (
+            <section className="px-4 py-3">
+              <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
+                🔥 Ofertas em {currentCategoryLabel}
+              </h2>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4">
+                {getPromosForCategory(categoria).map((s) => (
+                  <CompactServiceCard key={s.id} service={s} fixedWidth />
+                ))}
+              </div>
+            </section>
+          )}
 
-          {/* Categoria atual + Subcategorias */}
           <div className="px-4 pb-2">
             <h2 className="text-base font-semibold mb-2 flex items-center gap-2">
               {getCategoryIcon(categoria!)} {currentCategoryLabel}
             </h2>
-            
             {subCategories.length > 0 && (
               <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2">
                 <Link
                   href={`/categorias?categoria=${categoria}`}
                   className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition active:scale-95 ${
-                    !subcategoria
-                      ? "bg-primary text-white"
-                      : "bg-white text-foreground/80 border border-gray-200"
+                    !subcategoria ? "bg-primary text-white" : "bg-white text-foreground/80 border border-gray-200"
                   }`}
                 >
                   Todos
@@ -171,9 +198,7 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
                     key={sub}
                     href={`/categorias?categoria=${categoria}&subcategoria=${sub}`}
                     className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition active:scale-95 ${
-                      sub === subcategoria
-                        ? "bg-primary text-white"
-                        : "bg-white text-foreground/80 border border-gray-200"
+                      sub === subcategoria ? "bg-primary text-white" : "bg-white text-foreground/80 border border-gray-200"
                     }`}
                   >
                     {getSubcategoryLabel(sub)}
@@ -183,7 +208,6 @@ export default async function CategoriasPage({ searchParams }: PageProps) {
             )}
           </div>
 
-          {/* Produtos filtrados */}
           <section className="px-4 py-2">
             <h3 className="text-sm font-medium text-muted mb-3">
               {currentSubcategoryLabel ? currentSubcategoryLabel : `Todos os ${currentCategoryLabel?.toLowerCase()}`}
