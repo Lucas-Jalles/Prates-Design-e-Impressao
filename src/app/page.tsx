@@ -13,42 +13,49 @@ interface PageProps {
 
 export default async function HomePage({ searchParams }: PageProps) {
   const { categoria, subcategoria, q } = await searchParams;
-  let services: any[] = [];
 
-  // Fetch from Sheets if URL configured - using immediate execution
+  // Fetch data from Google Sheets API
+  let services: any[] = [];
   const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_URL;
+
   if (sheetsUrl) {
-    // Execute fetch immediately
-    (async () => {
-      try {
-        const res = await fetch(sheetsUrl, {
-          cache: 'no-store',
-          headers: { Accept: "application/json" }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          let products = [];
-          if (Array.isArray(data)) {
-            products = data;
-          } else if (data && data.products && Array.isArray(data.products)) {
-            products = data.products;
-          }
-          if (products && Array.isArray(products)) {
-            services = products.map(function(p) {
-              return {
-                id: p.id || 0,
-                nome: p.nome || "",
-                categoria: p.categoria || "",
-                valor_original: typeof p.valor_original === "number" ? p.valor_original : 0,
-                valor_desconto: typeof p.valor_desconto === "number" ? p.valor_desconto : null,
-              };
-            });
-          }
+    try {
+      const res = await fetch(sheetsUrl, {
+        cache: 'no-store',
+        headers: { Accept: "application/json" }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        let products = [];
+
+        if (Array.isArray(data)) {
+          products = data;
+        } else if (data && data.products && Array.isArray(data.products)) {
+          products = data.products;
         }
-      } catch (e) {
-        // Ignore fetch errors
+
+        if (products && Array.isArray(products)) {
+          services = products.map(function(p) {
+            return {
+              id: p.id || 0,
+              nome: p.nome || "",
+              categoria: p.categoria || "",
+              descricao: p.descricao || "",
+              especificacoes: p.especificacoes || "",
+              relacionados: p.relacionados || "",
+              valor_original: typeof p.valor_original === "number" ? p.valor_original : 0,
+              valor_desconto: typeof p.valor_desconto === "number" ? p.valor_desconto : null,
+              promo_ativa: p.promo_ativa || "NAO",
+              prazo_oferta: p.prazo_oferta || "",
+              prazo_entrega: p.prazo_entrega || "",
+            };
+          });
+        }
       }
-    })();
+    } catch (err) {
+      console.error("Error fetching services:", err);
+    }
   }
 
   const searchQuery = q?.toLowerCase().trim() || "";
