@@ -15,41 +15,40 @@ export default async function HomePage({ searchParams }: PageProps) {
   const { categoria, subcategoria, q } = await searchParams;
   let services: any[] = [];
 
-  // Try to fetch from Sheets API if configured
-  try {
-    const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_URL;
-    
-    if (sheetsUrl) {
-      const res = await fetch(sheetsUrl, {
-        cache: 'no-store',
-        headers: { Accept: "application/json" }
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        let products = [];
-        
-        if (Array.isArray(data)) {
-          products = data;
-        } else if (data && data.products && Array.isArray(data.products)) {
-          products = data.products;
+  // Fetch from Sheets if URL configured - using immediate execution
+  const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_URL;
+  if (sheetsUrl) {
+    // Execute fetch immediately
+    (async () => {
+      try {
+        const res = await fetch(sheetsUrl, {
+          cache: 'no-store',
+          headers: { Accept: "application/json" }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          let products = [];
+          if (Array.isArray(data)) {
+            products = data;
+          } else if (data && data.products && Array.isArray(data.products)) {
+            products = data.products;
+          }
+          if (products && Array.isArray(products)) {
+            services = products.map(function(p) {
+              return {
+                id: p.id || 0,
+                nome: p.nome || "",
+                categoria: p.categoria || "",
+                valor_original: typeof p.valor_original === "number" ? p.valor_original : 0,
+                valor_desconto: typeof p.valor_desconto === "number" ? p.valor_desconto : null,
+              };
+            });
+          }
         }
-        
-        if (products && Array.isArray(products)) {
-          services = products.map(function(p) {
-            return {
-              id: p.id || 0,
-              nome: p.nome || "",
-              categoria: p.categoria || "",
-              valor_original: typeof p.valor_original === "number" ? p.valor_original : 0,
-              valor_desconto: typeof p.valor_desconto === "number" ? p.valor_desconto : null,
-            };
-          });
-        }
+      } catch (e) {
+        // Ignore fetch errors
       }
-    }
-  } catch (err) {
-    console.error("Error:", err);
+    })();
   }
 
   const searchQuery = q?.toLowerCase().trim() || "";
