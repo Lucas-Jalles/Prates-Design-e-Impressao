@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServices } from "@/lib/googleSheets";
+import { readFile } from "fs/promises";
+import path from "path";
 
 export async function GET() {
   try {
-    const services = await getServices();
+    const cachePath = path.join(process.cwd(), "src", "data", "products-cache.json");
+    const content = await readFile(cachePath, "utf-8");
+    const services = JSON.parse(content);
     return NextResponse.json({ services });
   } catch (err) {
     return NextResponse.json(
